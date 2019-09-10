@@ -10,57 +10,27 @@ class CtripFlightCrawler(object):
 
     def get_flights(self):
         resp = self.request_session.post(
-            'https://sec-m.ctrip.com/restapi/soa2/11782/Flight/International/FlightListV2/Query',
+            'https://sec-m.ctrip.com/restapi/soa2/13212/flightListSearch',
+            headers={
+                'referer': 'x',
+                'content-type': 'application/json'
+            },
             data=json.dumps({
-                "grade": 0,
-                "osource": 1,
-                "params": [
-                    { "typ": 1,"val": 7 },
-                    { "typ": 3,"val": 1}
-                ],
-                "psglst": [
-                    { "psgtype": 1,"psgcnt": "1" }
-                ],
-                "prdid": "",
-                "segno": 1,
-                "segs": [
+                "searchitem": [
                     {
-                        "dcity": "BJS",
-                        "acity": "SIN",
-                        "ddate": "2016-08-03",
-                        "segno": 1
+                        "dccode": "SHA",
+                        "accode": "SIN",
+                        "dtime": "2019-09-11",
                     }
                 ],
-                "sortinfo": {
-                    "idx": 1,
-                    "size": 100,
-                    "ordby": 105,
-                    "meyordby": 2,
-                    "dir": 2,
-                    "token": {
-                        "SecondToken": "2",
-                        "MultiToken": None,
-                        "TransActionId": ""
-                    }
-                },
-                "triptype": 1,
-                "ver": 0,
-                "head": {
-                    "cid": "",
-                    "ctok": "",
-                    "cver": "1.0",
-                    "lang": "01",
-                    "sid": "8888",
-                    "syscode": "09",
-                    "auth": None,
-                    "extension":[
-                        {
-                            "name": "protocal",
-                            "value": "http"
-                        }
-                    ]
-                },
-                "contentType": "json"
+                "psgList": [{
+                    "type": 1,
+                    "count": 1
+                }],
+                "trptpe": 1,
+                "head": { },
+                "seat": 0,
+                "segno": 1
             })
         )
         return resp.json()
@@ -72,6 +42,6 @@ class CtripFlightCrawler(object):
 if __name__ == '__main__':
     crawler = CtripFlightCrawler(requests.Session())
     res = crawler.crawl()
-    for flight in res['segs']:
-        price = flight['policys'][0]['prices'][0]
-        print(str(price['price']))
+    for flight in res['fltitem']:
+        price = flight['policyinfo'][0]['priceinfo'][0]
+        print(str(price['price'] + price['tax']))
